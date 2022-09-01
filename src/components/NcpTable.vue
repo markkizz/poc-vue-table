@@ -1,5 +1,5 @@
 <template>
-  <v-data-table :headers="headers" :items="items">
+  <v-data-table :headers="headers" :items="actualItems">
     <template v-if="$scopedSlots['headers']" #headers="props">
       <slot name="headers" v-bind="props" />
     </template>
@@ -17,16 +17,18 @@ import { IColumnHeaders } from "./types";
 @Component
 export default class NcpTable extends Vue {
   @Prop() public headers!: IColumnHeaders[];
-  @Prop() public items!: Record<string, any | any[]>;
+  @Prop() public items!: Record<string, unknown>[];
   @Prop() public search!: string;
   @Prop() public filters!: { id: string; value: any }[];
 
-  private _coreTable = new CoreTable([]);
+  private _coreTable = new CoreTable([] as Record<string, unknown>[]);
 
   public searchable: string[] = [];
 
   get actualItems() {
-    return this._coreTable.getValues();
+    const values = this._coreTable.getValues();
+    console.log(values);
+    return values;
   }
 
   created() {
@@ -34,6 +36,7 @@ export default class NcpTable extends Vue {
     this.searchable = this.headers
       .filter((header) => header.searchable)
       .map((header) => header.value);
+    console.log("searchable on created", this.searchable);
   }
 
   @Watch("search")
@@ -43,6 +46,7 @@ export default class NcpTable extends Vue {
       value: this.search,
     }));
     this._coreTable.filters(targetSearch);
+    this._coreTable.globalSearch(this.search);
   }
 }
 </script>

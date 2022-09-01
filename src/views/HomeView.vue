@@ -1,7 +1,10 @@
 <template>
   <div class="home">
     <img alt="Vue logo" src="../assets/logo.png" />
-    <input v-model="text" />
+    <input
+      v-model="text"
+      style="border: 1px lightgray solid; width: 250px; padding: 8px 16px"
+    />
     <NcpTable :headers="headers" :items="items" :search="text">
       <template #items="{ item }">
         <td>
@@ -45,3 +48,9 @@ export default class HomeView extends Vue {
   public text = "";
 }
 </script>
+
+<style scoped>
+input {
+  border: 1px solid black;
+}
+</style>
