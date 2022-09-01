@@ -32,7 +32,7 @@ export default class NcpTable extends Vue {
   }
 
   created() {
-    this._coreTable = new CoreTable(this.items);
+    this._coreTable = new CoreTable(Vue.observable(this.items));
     this.searchable = this.headers
       .filter((header) => header.searchable)
       .map((header) => header.value);

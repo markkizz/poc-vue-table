@@ -45,6 +45,7 @@ export class CoreTable<TDataRow extends Record<string, unknown>> {
       return includeConditions.some((x) => x);
     });
     this.setValues(result);
+    console.log("result searched", result);
     return result;
   }
 }
