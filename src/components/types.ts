@@ -11,4 +11,5 @@ export interface IColumnHeaders {
   };
   // aditional props
   searchable?: boolean;
+  // bahabh: string
 }

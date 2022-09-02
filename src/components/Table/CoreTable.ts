@@ -1,20 +1,32 @@
 export class CoreTable<TData extends object[]> {
   private _items: TData;
+  private defaultSort: {
+    by: string;
+    desc: boolean;
+  };
+  private defaultPaginate = {};
 
-  constructor(initialData: TData) {
-    this._items = initialData;
+  constructor(initialData?: TData) {
+    this._items = [] as TData;
   }
 
-  private setValues(values: TData) {
-    this._items = values;
+  public addItems(items: any) {
+    return this;
   }
 
-  public getValues() {
+  public addPagination() {
+    return this;
+  }
+
+  public filters(targetData: { path: string; value: any }[]) {
+    return this;
+  }
+
+  public sort(by?: string, desc?: boolean) {
+    return this;
+  }
+
+  public build() {
     return this._items;
-  }
-
-  public filters(targetData: { id: string; value: any }[]) {
-    //
-    // this.setValues(values)
   }
 }
