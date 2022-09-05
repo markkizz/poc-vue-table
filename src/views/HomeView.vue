@@ -47,6 +47,9 @@
           </v-tooltip>
         </td>
         <td>
+          {{ item.visits }}
+        </td>
+        <td>
           {{ item.progress }}
         </td>
         <td>
@@ -104,7 +107,7 @@ export default class HomeView extends Vue {
         age: row.age,
         visits: row.visits,
         street: row.address.street,
-        houseNo: row?.address?.houseNo || "",
+        houseNo: row.address.houseNo,
         progress: row.progress,
         status: row.status,
       };
