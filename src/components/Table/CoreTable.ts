@@ -1,32 +1,35 @@
-export class CoreTable<TDataRow extends Record<string, unknown>> {
-  private rows: TDataRow[];
+import { FilterField } from "../types";
 
-  constructor(initialData: TDataRow[] = []) {
-    this.rows = initialData;
+export class CoreTable<
+  TDataRow extends Record<string, unknown> = Record<string, unknown>
+> {
+  private _filterableDataRows: TDataRow[];
+
+  constructor(private _originalFilterableDataRows: TDataRow[]) {
+    this._filterableDataRows = _originalFilterableDataRows.slice();
   }
 
-  private setValues(values: TDataRow[]) {
-    this.rows = values;
-  }
-
-  public getValues() {
-    return this.rows;
-  }
-
-  public filters(targetData: { id: string; value: any }[]) {
-    //
-    // this.setValues(values)
-    // console.log(targetData);
+  private initialDataBeforeFilter() {
+    this._filterableDataRows = this._originalFilterableDataRows.slice();
   }
 
   public globalSearch(keyword: string) {
-    if (!keyword) return this.rows;
-    if (this.rows.length === 0) return [];
+    keyword = keyword.trim();
+    this.initialDataBeforeFilter();
 
-    const keys = Object.keys(this.rows[0]) as (keyof TDataRow)[];
+    if (!keyword) return this;
+
+    if (this._filterableDataRows.length === 0) {
+      this._filterableDataRows = [];
+      return this;
+    }
+
+    const keys = Object.keys(this._filterableDataRows[0]) as (keyof TDataRow)[];
     const lowerCaseText = keyword.toLocaleLowerCase();
 
-    const result = this.rows.filter((columns) => {
+    console.log("before search", keyword, this._filterableDataRows);
+
+    const resultSearch = this._filterableDataRows.filter((columns) => {
       const includeConditions = keys.map((key) => {
         const dataCell = columns[key];
 
@@ -44,8 +47,22 @@ export class CoreTable<TDataRow extends Record<string, unknown>> {
 
       return includeConditions.some((x) => x);
     });
-    this.setValues(result);
-    console.log("result searched", result);
-    return result;
+
+    this._filterableDataRows = resultSearch;
+
+    return this;
+  }
+
+  public filterItems(filterableFields: Omit<FilterField, "label">[]) {
+    this.initialDataBeforeFilter();
+    // this._dataRows.filter(row => {
+    // return row.
+    // })
+    console.log("filterableFields", filterableFields);
+    return this;
+  }
+
+  public build() {
+    return this._filterableDataRows;
   }
 }

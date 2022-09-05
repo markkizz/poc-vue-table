@@ -10,44 +10,87 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Watch } from "vue-property-decorator";
+import { Component, Emit, Prop, Vue, Watch } from "vue-property-decorator";
 import { CoreTable } from "./Table/CoreTable";
-import { IColumnHeaders } from "./types";
+import { FilterField, IColumnHeaders, IFilterablePerson } from "./types";
 
 @Component
 export default class NcpTable extends Vue {
-  @Prop() public headers!: IColumnHeaders[];
-  @Prop() public items!: Record<string, unknown>[];
-  @Prop() public search!: string;
-  @Prop() public filters!: { id: string; value: any }[];
+  @Emit()
+  // eslint-disable-next-line @typescript-eslint/no-empty-function, @typescript-eslint/no-unused-vars
+  private setTableItems() {
+    return this.items;
+  }
 
-  private _coreTable = new CoreTable([] as Record<string, unknown>[]);
+  @Prop() public headers!: IColumnHeaders[];
+
+  @Prop({ type: Array, default: () => [] })
+  public items!: Record<string, unknown>[]; // v-data-table="items"
+
+  @Prop() public search!: string;
+
+  @Prop({ type: Array, default: () => [] })
+  public filterFields!: Omit<FilterField, "label">[];
+
+  @Prop({ type: Array, default: () => [] })
+  public filterableItems!: IFilterablePerson[];
+
+  private _coreTable: CoreTable<Record<string, unknown>> | null = null;
 
   public searchable: string[] = [];
 
+  public created() {
+    console.log("onmounted");
+    // this._coreTable = new CoreTable(this.items);
+    this._coreTable = new CoreTable(
+      this.filterableItems as unknown as Record<string, unknown>[]
+    );
+  }
+
   get actualItems() {
-    const values = this._coreTable.getValues();
-    console.log(values);
-    return values;
+    if (!this._coreTable) return this.items;
+
+    const hasAtLeastOneFilter = this.filterFields
+      .filter((field) => field.value)
+      .some((field) => !!String(field.value)?.trim() || !!field.value);
+
+    if (hasAtLeastOneFilter) {
+      this._coreTable?.filterItems([]);
+    }
+    const searchedResult = this._coreTable?.globalSearch(this.search).build();
+    const mappingData: { [key: string]: unknown } = {};
+    searchedResult.forEach((item) => {
+      mappingData[(item as { id: string }).id] = item;
+    });
+    return this.items.filter((item) => {
+      return mappingData[(item as { id: string }).id];
+    });
+    // FOR Building Items with Path
+    // return this._coreTable?.globalSearch(this.search).build();
   }
 
-  created() {
-    this._coreTable = new CoreTable(Vue.observable(this.items));
-    this.searchable = this.headers
-      .filter((header) => header.searchable)
-      .map((header) => header.value);
-    console.log("searchable on created", this.searchable);
+  // set actualItems(values: Record<string, unknown>[]) {
+  //   this.$emit("setTableItems", values);
+  // }
+
+  private mappedIdByPath() {
+    return {};
   }
 
-  @Watch("search")
-  public onSearch() {
-    const targetSearch = this.searchable.map((target) => ({
-      id: target,
-      value: this.search,
-    }));
-    this._coreTable.filters(targetSearch);
-    this._coreTable.globalSearch(this.search);
+  @Watch("items", { deep: true })
+  onItemsChanged() {
+    console.log(this.items);
   }
+
+  // @Watch("search")
+  // public onSearch() {
+  //   const targetSearch = this.searchable.map((target) => ({
+  //     id: target,
+  //     value: this.search,
+  //   }));
+  //   this._coreTable?.filters(targetSearch);
+  //   this.actualItems = this._coreTable?.globalSearch(this.search) || [];
+  // }
 }
 </script>
 
