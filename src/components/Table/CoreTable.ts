@@ -1,13 +1,13 @@
 export class CoreTable<TData extends object[]> {
-  private _items: TData;
-  private defaultSort: {
-    by: string;
-    desc: boolean;
-  };
+  private _items = [];
+  // private defaultSort: {
+  //   by: string;
+  //   desc: boolean;
+  // };
   private defaultPaginate = {};
 
   constructor(initialData?: TData) {
-    this._items = [] as TData;
+    this._items = [];
   }
 
   public addItems(items: any) {

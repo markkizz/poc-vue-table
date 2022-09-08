@@ -1,5 +1,5 @@
 <template>
-  <v-data-table :headers="headers" :items="items">
+  <v-data-table :headers="headers" :items="actualItems">
     <template v-if="$scopedSlots['headers']" #headers="props">
       <slot name="headers" v-bind="props" />
     </template>
@@ -10,51 +10,78 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, Watch } from "vue-property-decorator";
-import { CoreTable } from "./Table/CoreTable";
+import { Component, Prop, PropSync, Watch } from "vue-property-decorator";
 import { IColumnHeaders } from "./types";
+import {
+  ColumnDef,
+  ColumnFiltersState,
+  TableState,
+  PaginationState,
+} from "@tanstack/table-core";
+import { VueTable } from "./Table";
 
 @Component
-export default class NcpTable extends Vue {
-  @Prop() public headers!: IColumnHeaders[];
-  @Prop() public items!: Record<string, any | any[]>;
-  @Prop() public search!: string;
-  @Prop({ default: () => [] }) public filters!: { id: string; value: any }[];
+export default class NcpTable<TData> extends VueTable<TData> {
+  // @Prop() headers!: IColumnHeaders[];
+  @Prop() public items!: TData[];
+  @Prop() public columns!: ColumnDef<TData, any>[];
+  @PropSync("filters", { default: () => [] })
+  public filterSync!: ColumnFiltersState;
+  @PropSync("search", { default: "" })
+  public globalSearchSync!: string;
 
-  private _coreTable = new CoreTable([]);
+  public vTableState: TableState = {} as TableState;
+  public pagination: PaginationState = {
+    pageIndex: 0,
+    pageSize: 10,
+  };
 
-  // public searchable: string[] = [];
+  get headers(): IColumnHeaders[] {
+    const tableColumns = this.tableRef.getAllColumns();
+    return tableColumns.map((column) => ({
+      id: column.columnDef.meta?.dataTestid,
+      text: column.columnDef.header as string,
+      value: column.id,
+      ...column.columnDef.meta,
+    }));
+  }
 
   get actualItems() {
-    const table = new CoreTable(this.items);
-    const searchable = this.headers
-      .filter((header) => header.searchable)
-      .map((header) => ({ id: header.value, value: this.search }));
-    // .map((header) => ({ id: "metadata.image_name", value: this.search }));
-    const filterable = [...searchable, ...this.filters];
-    const filted = table
-      .addItems(this.items)
-      .filters(filterable)
-      .sort()
-      .build();
-    return filted;
+    return this.tableRef.getRowModel().rows.map((row) => row.original);
   }
 
-  created() {
-    // this._coreTable = new CoreTable(this.items);
-    // this.searchable = this.headers
-    //   .filter((header) => header.searchable)
-    //   .map((header) => header.value);
+  get tableState() {
+    const options = {
+      ...this.vTableState,
+      // columnFilters: [],
+      columnFilters: this.filterSync,
+      globalFilter: this.globalSearchSync,
+      pagination: this.pagination,
+    } as TableState;
+
+    return options;
   }
 
-  // @Watch("search")
-  // public onSearch() {
-  //   const targetSearch = this.searchable.map((target) => ({
-  //     id: target,
-  //     value: this.search,
-  //   }));
-  //   this._coreTable.filters(targetSearch);
-  // }
+  mounted() {
+    // trigger reactive
+    this.vTableState = {} as TableState;
+    this.createTable();
+  }
+
+  @Watch("tableState", { deep: true })
+  public onTableStateChange() {
+    console.log(this.tableRef.getAllColumns());
+    console.log("table state", this.tableState);
+    console.log("table internal", this.tableRef.getState());
+    console.log("row", this.tableRef.getRowModel().rows);
+  }
+
+  public onStateChange = this.setUpdatableRef(this.vTableState);
+
+  public onColumnFiltersChange = this.setUpdatableRef(this.filterSync);
+  public onGlobalFilterChange(updater: string) {
+    this.globalSearchSync = updater;
+  }
 }
 </script>
 
