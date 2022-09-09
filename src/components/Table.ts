@@ -9,9 +9,10 @@ import {
   Updater,
   TableOptionsResolved,
   getPaginationRowModel,
+  FilterFn,
 } from "@tanstack/table-core";
 import { Vue, Watch } from "vue-property-decorator";
-import { createTableDefaultOptions } from "./TanstackTable";
+import { createTableDefaultOptions, fuzzyFilter } from "./TanstackTable";
 
 export interface VueTable<TData> {
   tableRef: Table<TData>;

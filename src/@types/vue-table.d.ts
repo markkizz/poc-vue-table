@@ -8,4 +8,10 @@ declare module "@tanstack/table-core" {
     class?: string[] | string;
     width?: string;
   }
+  interface FilterFns {
+    fuzzy: FilterFn<unknown>;
+  }
+  interface FilterMeta {
+    itemRank: RankingInfo;
+  }
 }

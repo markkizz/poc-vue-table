@@ -2,12 +2,12 @@
   <div class="home">
     <img alt="Vue logo" src="../assets/logo.png" />
     <v-text-field v-model="search" outline label="search" />
-    <!-- <v-text-field v-model="firstNameSearch" outline label="input" /> -->
+    <v-text-field v-model="firstNameSearch" outline label="firstNameSearch" />
     <NcpTable
       :columns="columns"
       :items="items"
-      :search="search"
-      :filters="filters"
+      :search.sync="search"
+      :filters.sync="filters"
     >
       <template #items="{ item }">
         <td>
@@ -36,15 +36,9 @@
 <script lang="ts">
 import { Component, Vue } from "vue-property-decorator";
 
-import {
-  makeData,
-  Person,
-  headersPerson,
-  personColumns,
-} from "@/components/makeData";
+import { makeData, headersPerson, personColumns } from "@/components/makeData";
 
 import NcpTable from "@/components/NcpTable.vue"; // @ is an alias to /src
-import { ColumnFiltersState } from "@tanstack/table-core";
 
 @Component({
   components: {
@@ -64,6 +58,13 @@ export default class HomeView extends Vue {
       id: key,
       value: this.filterState[key],
     }));
+  }
+
+  set filters(value) {
+    this.filterState = value.reduce((acc, filter) => {
+      acc[filter.id] = filter.value;
+      return acc;
+    }, {} as typeof this.filterState);
   }
 
   public setFilter(key: string, value: string) {
