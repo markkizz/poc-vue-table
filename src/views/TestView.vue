@@ -16,12 +16,11 @@ import { Component, Vue } from "vue-property-decorator";
 import PersonTable from "@/components/PersonTable.vue";
 
 @Component({
-  name: "HomeView",
   components: {
     PersonTable: PersonTable,
   },
 })
-export default class HomeView extends Vue {
+export default class TestView extends Vue {
   public textSearch = "";
 }
 </script>

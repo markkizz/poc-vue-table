@@ -8,7 +8,9 @@ export type Person = {
   age: number;
   visits: number;
   progress: number;
-  address: Address;
+  houseNo: Address["houseNo"];
+  street: Address["street"];
+  streetPrefix: Address["streetPrefix"];
   status: "relationship" | "complicated" | "single";
   subRows?: Person[];
 };
@@ -27,54 +29,6 @@ const range = (len: number) => {
   return arr;
 };
 
-export const headersPerson: IColumnHeaders[] = [
-  {
-    id: "table_person_firstName",
-    text: "First Name",
-    value: "firstName",
-  },
-  {
-    id: "table_person_lastName",
-    text: "Last Name",
-    value: "lastName",
-  },
-  {
-    id: "table_person_age",
-    text: "Age",
-    value: "age",
-  },
-  {
-    id: "table_person_visits",
-    text: "Visits",
-    value: "visits",
-  },
-  {
-    id: "table_person_houseNo",
-    text: "Building Number",
-    value: "houseNo",
-  },
-  {
-    id: "table_person_street",
-    text: "Street",
-    value: "street",
-  },
-  {
-    id: "table_person_visits",
-    text: "Visits",
-    value: "visits",
-  },
-  {
-    id: "table_person_progress",
-    text: "Progress",
-    value: "progress",
-  },
-  {
-    id: "table_person_status",
-    text: "Status",
-    value: "status",
-  },
-];
-
 const newPerson = (): Person => {
   return {
     id: faker.datatype.uuid(),
@@ -82,11 +36,11 @@ const newPerson = (): Person => {
     lastName: faker.name.lastName(),
     age: faker.datatype.number(40),
     visits: faker.datatype.number(1000),
-    address: {
-      houseNo: faker.address.buildingNumber(),
-      street: faker.address.streetName(),
-      streetPrefix: faker.address.streetPrefix(),
-    },
+    // address: {
+    houseNo: faker.address.buildingNumber(),
+    street: faker.address.streetName(),
+    streetPrefix: faker.address.streetPrefix(),
+    // },
     progress: faker.datatype.number(100),
     status: faker.helpers.shuffle<Person["status"]>([
       "relationship",

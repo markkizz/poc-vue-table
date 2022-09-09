@@ -1,3 +1,4 @@
+import TestView from "@/views/TestView.vue";
 import Vue from "vue";
 import VueRouter, { RouteConfig } from "vue-router";
 import HomeView from "../views/HomeView.vue";
@@ -9,6 +10,11 @@ const routes: Array<RouteConfig> = [
     path: "/",
     name: "home",
     component: HomeView,
+  },
+  {
+    path: "/test",
+    name: "test",
+    component: TestView,
   },
   {
     path: "/about",
